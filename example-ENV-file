@@ -1,0 +1,2 @@
+PG_URI=your SQL database connection-sring
+JWT_SECRET=  a random string
