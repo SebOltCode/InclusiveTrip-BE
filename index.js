@@ -20,7 +20,7 @@ import authRouter from "./routes/authRoute.js";
 
 const app = express();
 
-pp.use(express.static(path.join(__dirname, 'build')));
+app.use(express.static(path.join(__dirname, 'build')));
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
