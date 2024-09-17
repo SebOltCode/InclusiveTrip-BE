@@ -11,14 +11,23 @@ import barrierRouter from "./routes/barriersRoute.js";
 import FileRouter from "./routes/fileUploadsRoute.js";
 import ProfilePhotosRouter from "./routes/profilePhotosRoute.js";
 import authRouter from "./routes/authRoute.js";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+// import { join, dirname } from "path";
+// import { fileURLToPath } from "url";
 
-import * as url from "url";
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+// import * as url from "url";
+// const __filename = url.fileURLToPath(import.meta.url);
+// const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 const app = express();
+
+pp.use(express.static(path.join(__dirname, 'build')));
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
