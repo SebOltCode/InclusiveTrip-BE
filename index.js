@@ -26,6 +26,8 @@ app.use(express.json());
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
@@ -41,6 +43,7 @@ app.use("/barriers", barrierRouter);
 app.use("/file-upload", FileRouter);
 app.use("/profilePhotos", ProfilePhotosRouter);
 app.use("/auth", authRouter);
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
