@@ -42,12 +42,12 @@ export const signin = async (req, res) => {
 
         const isProduction = process.env.NODE_ENV === 'production';
         const cookieOptions = {
-            httpOnly: false,
+            httpOnly: true,
             sameSite: isProduction ? 'None' : 'Lax',
-            secure: isProduction
+            secure: isProduction,
+            path: '/',
         };
 
-        // Set token in cookies and respond
         res.cookie('token', token, cookieOptions);
         return res.status(200).json({ success: 'Welcome back' });
 
@@ -61,17 +61,17 @@ export const signout = async (req, res) => {
     try {
         const isProduction = process.env.NODE_ENV === 'production';
         const cookieOptions = {
-            httpOnly: true,
+            httpOnly: true, // Set to true for security
             sameSite: isProduction ? 'None' : 'Lax',
-            secure: isProduction
+            secure: isProduction, // Set to true in production
+            path: '/', // Ensure the cookie is cleared from all routes
         };
         res.clearCookie('token', cookieOptions);
         res.status(200).json({ success: 'goodbye' });
-    }
-    catch (error) {
+    } catch (error) {
         res.status(400).json({ message: error.message });
     }
-}
+};
 
 export const me = async (req, res) => {
     try {
