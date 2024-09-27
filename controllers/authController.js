@@ -42,7 +42,7 @@ export const signin = async (req, res) => {
 
         const isProduction = process.env.NODE_ENV === 'production';
         const cookieOptions = {
-            httpOnly: true,
+            httpOnly: false,
             sameSite: isProduction ? 'None' : 'Lax',
             secure: isProduction,
             path: '/',
@@ -61,7 +61,7 @@ export const signout = async (req, res) => {
     try {
         const isProduction = process.env.NODE_ENV === 'production';
         const cookieOptions = {
-            httpOnly: true, // Set to true for security
+            httpOnly: false,
             sameSite: isProduction ? 'None' : 'Lax',
             secure: isProduction, // Set to true in production
             path: '/', // Ensure the cookie is cleared from all routes
