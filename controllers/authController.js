@@ -44,9 +44,8 @@ export const signin = async (req, res) => {
         const cookieOptions = {
             httpOnly: false,
             sameSite: isProduction ? 'None' : 'Lax',
-            secure: true,
+            secure: isProduction,
             path: '/',
-            domain: '.render.com',
         };
 
         res.cookie('token', token, cookieOptions);
@@ -64,8 +63,8 @@ export const signout = async (req, res) => {
         const cookieOptions = {
             httpOnly: false,
             sameSite: isProduction ? 'None' : 'Lax',
-            secure: isProduction,
-            path: '/',
+            secure: isProduction, // Set to true in production
+            path: '/', // Ensure the cookie is cleared from all routes
         };
         res.clearCookie('token', cookieOptions);
         res.status(200).json({ success: 'goodbye' });
