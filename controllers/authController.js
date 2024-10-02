@@ -42,6 +42,7 @@ export const signin = async (req, res) => {
 
         const isProduction = process.env.NODE_ENV === 'production';
         const cookieOptions = {
+
             httpOnly: isProduction ? 'true' : 'false',
             sameSite: isProduction ? 'None' : 'Lax',
             secure: isProduction,
