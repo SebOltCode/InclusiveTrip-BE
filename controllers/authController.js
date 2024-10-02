@@ -44,7 +44,7 @@ export const signin = async (req, res) => {
         const cookieOptions = {
             httpOnly: false,
             sameSite: isProduction ? 'None' : 'Lax',
-            secure: isProduction,
+            secure: false,
             path: '/',
         };
 
