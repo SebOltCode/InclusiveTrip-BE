@@ -44,7 +44,7 @@ export const signin = async (req, res) => {
         const cookieOptions = {
             httpOnly: false,
             sameSite: isProduction ? 'None' : 'Lax',
-            secure: false,
+            secure: isProduction,
             path: '/',
         };
 
@@ -63,8 +63,8 @@ export const signout = async (req, res) => {
         const cookieOptions = {
             httpOnly: false,
             sameSite: isProduction ? 'None' : 'Lax',
-            secure: isProduction, // Set to true in production
-            path: '/', // Ensure the cookie is cleared from all routes
+            secure: isProduction,
+            path: '/',
         };
         res.clearCookie('token', cookieOptions);
         res.status(200).json({ success: 'goodbye' });
