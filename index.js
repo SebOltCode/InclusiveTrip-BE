@@ -15,9 +15,8 @@ import authRouter from "./routes/authRoute.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
-import * as url from "url";
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,12 +27,12 @@ const corsOptions = {
   origin: process.env.FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-
 };
 
 app.use(cors(corsOptions));
 
-app.use(express.static("uploads"));
+// Statische Dateien bereitstellen
+app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
 app.use("/users", userRoute);
 app.use("/roles", roleRoute);
