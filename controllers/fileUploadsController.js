@@ -26,7 +26,7 @@ export const createFile = async (req, res) => {
         fileName: newFilename,
         fileType: file.mimetype,
         fileSize: file.size,
-        filePath: `${process.env.BASE_URL}/reviewsPhotos/${newFilename}`,
+        filePath: `${process.env.BASE_URL}/uploads/reviewsPhotos/${newFilename}`,
         reviewId: req.body.reviewId,
       });
       const savedFile = await newFile.save();
