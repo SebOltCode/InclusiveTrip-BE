@@ -19,6 +19,7 @@ export const createProfilePhoto = async (req, res) => {
     const newFilename = `${timestamp}${ext}`;
     const newFilePath = path.join(__dirname, '..', 'uploads', 'profilePhotos', newFilename);
 
+    // Stelle sicher, dass das Verzeichnis existiert
     const dir = path.dirname(newFilePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
