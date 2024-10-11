@@ -2,6 +2,10 @@ import FileUpload from "../models/FileUploadModel.js";
 import { deleteFile1 } from "./file.js";
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const createFile = async (req, res) => {
   try {
@@ -19,14 +23,20 @@ export const createFile = async (req, res) => {
       const timestamp = Date.now();
       const ext = path.extname(file.originalname);
       const newFilename = `${timestamp}${ext}`;
-      const newFilePath = path.join(__dirname, '..', 'reviewsPhotos', newFilename);
+      const newFilePath = path.join(__dirname, '..', 'uploads', 'reviewsPhotos', newFilename);
+
+      const dir = path.dirname(newFilePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
       fs.renameSync(file.path, newFilePath);
 
       const newFile = new FileUpload({
         fileName: newFilename,
         fileType: file.mimetype,
         fileSize: file.size,
-        filePath: `${process.env.BASE_URL}/reviewsPhotos/${newFilename}`,
+        filePath: `${process.env.BASE_URL}/uploads/reviewsPhotos/${newFilename}`,
         reviewId: req.body.reviewId,
       });
       const savedFile = await newFile.save();

@@ -4,7 +4,6 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-// Definiere __dirname manuell
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -19,7 +18,7 @@ export const createProfilePhoto = async (req, res) => {
     const newFilename = `${timestamp}${ext}`;
     const newFilePath = path.join(__dirname, '..', 'uploads', 'profilePhotos', newFilename);
 
-    // Stelle sicher, dass das Verzeichnis existiert
+
     const dir = path.dirname(newFilePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });

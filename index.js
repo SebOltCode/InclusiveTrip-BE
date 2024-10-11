@@ -31,7 +31,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Statische Dateien bereitstellen
+
 app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
 app.use("/users", userRoute);

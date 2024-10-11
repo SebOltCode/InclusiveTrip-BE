@@ -1,4 +1,3 @@
-
 import User from "../models/UserModel.js";
 
 export const getUsers = async (req, res) => {
@@ -35,7 +34,7 @@ export const createUser = async (req, res) => {
         if (!firstName || !lastName || !email || !password) {
             return res.status(400).json({ message: 'Please provide firstName, lastName,email and password ' });
         }
-        // Existiert die email bereits?
+
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(409).json({ message: 'user already exists' });
