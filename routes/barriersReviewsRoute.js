@@ -3,7 +3,7 @@ import { Router } from "express";
 import {
     getBarrierReviewsByReviewId, getBarriersReviews, getBarrierReview, createBarrierReview, updateBarrierReview,
     deleteBarrierReview,
-    deleteBarrierReviewsByReviewId
+    deleteBarrierReviewsByReviewId,
 } from "../controllers/barriersReviewsController.js";
 import validateSchema from "../middlewares/validateSchema.js";
 import barriersReviewsSchema from "../schemas/barriersReviewsSchema.js";

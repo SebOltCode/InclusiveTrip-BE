@@ -1,6 +1,7 @@
 import Barrier from "../models/BarrierModel.js";
 import BarrierReview from "../models/BarrierReviewsModel.js";
 
+
 export const getBarriersReviews = async (req, res) => {
     try {
         const barriersReviews = await BarrierReview.findAll();
@@ -59,61 +60,50 @@ export const createBarrierReview = async (req, res) => {
 };
 
 export const updateBarrierReview = async (req, res) => {
+    const { id } = req.params;
     const { barrierId, reviewId, reviews } = req.body;
     try {
-        if (!barrierId || !reviewId || !reviews)
-            throw new Error("BarrierId, reviewId and reviews are required");
-        if (!req.params.id) throw new Error("must provide id in the params");
-        const barrierReview1 = await BarrierReview.findOne({
-            where: { id: req.params.id },
+        if (!id) throw new Error("must provide id in the params");
+        const barrierReviewToUpdate = await BarrierReview.findOne({
+            where: { id },
         });
-        if (barrierReview1) {
-            barrierReview1.barrierId = barrierId;
-            barrierReview1.reviewId = reviewId;
-            barrierReview1.reviews = reviews;
-            await barrierReview1.save();
-            res.json(barrierReview1);
-        } else {
-            res.status(404).json({ message: "Update Failed : Barrier Reviews not found" });
-        }
+        if (!barrierReviewToUpdate) throw new Error("Barrier Review not found");
+        barrierReviewToUpdate.barrierId = barrierId;
+        barrierReviewToUpdate.reviewId = reviewId;
+        barrierReviewToUpdate.reviews = reviews;
+        await barrierReviewToUpdate.save();
+        res.status(200).json(barrierReviewToUpdate);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
 export const deleteBarrierReview = async (req, res) => {
+    const { id } = req.params;
     try {
-        if (!req.params.id) throw new Error("must provide id in the params");
-        const barrierReview1 = await BarrierReview.findOne({
-            where: { id: req.params.id },
+        if (!id) throw new Error("must provide id in the params");
+        const barrierReviewToDelete = await BarrierReview.findOne({
+            where: { id },
         });
-        if (barrierReview1) {
-            await barrierReview1.destroy();
-            res.json({ message: "Barrier Review deleted successfully" });
-        } else {
-            res.status(404).json({ message: "Delete Faild:Barrier Review not found" });
-        }
+        if (!barrierReviewToDelete) throw new Error("Barrier Review not found");
+        await barrierReviewToDelete.destroy();
+        res.status(200).json({ message: "Barrier Review deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-
 export const deleteBarrierReviewsByReviewId = async (req, res) => {
+    const { reviewId } = req.params;
     try {
-        if (!req.params.reviewId) throw new Error("must provide id in the params");
-
-        const barrierReviews = await BarrierReview.findAll({
-            where: { reviewId: req.params.reviewId },
+        const barrierReviewsToDelete = await BarrierReview.findAll({
+            where: { reviewId },
         });
-        if (barrierReviews.length > 0) {
-            barrierReviews.forEach(async (barrierReview) => {
-                await barrierReview.destroy();
-            });
-            res.json({ message: "Barrier Review deleted successfully" });
-        } else {
-            res.status(404).json({ message: "Delete Faild: Barrier Reviews not found" });
-        }
+        if (barrierReviewsToDelete.length === 0) throw new Error("No Barrier Reviews found for this reviewId");
+        await BarrierReview.destroy({
+            where: { reviewId },
+        });
+        res.status(200).json({ message: "Barrier Reviews deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

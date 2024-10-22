@@ -1,6 +1,8 @@
+import BarrierReview from "../models/BarrierReviewsModel.js";
 import Review from "../models/ReviewModel.js";
 import User from '../models/UserModel.js';
 import FileUpload from '../models/FileUploadModel.js';
+
 import { deleteFile1 } from "./file.js";
 export const getReviews = async (req, res) => {
     try {
@@ -162,5 +164,34 @@ export const deleteReview = async (req, res) => {
         res.status(200).json({ message: "Review deleted successfully." });
     } catch (error) {
         res.status(409).json({ message: error.message });
+    }
+};
+
+
+
+export const getReviewsByPlaceIdAndBarrierId = async (req, res) => {
+    const { placeId, barrierId } = req.query;
+
+    try {
+        if (!placeId || !barrierId) {
+            throw new Error("placeId and barrierId are required");
+        }
+
+        const reviews = await BarrierReview.findAll({
+            where: { barrierId },
+            include: [{
+                model: Review,
+                where: { placeId }
+            }]
+        });
+
+        if (reviews.length === 0) {
+            return res.status(404).json({ message: 'No reviews found for this placeId and barrierId.' });
+        }
+
+        res.status(200).json(reviews);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error fetching reviews', error: error.message });
     }
 };

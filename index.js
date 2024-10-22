@@ -2,6 +2,7 @@ import express from "express";
 import "./db/index.js";
 import cors from "cors";
 import "./models/index.js";
+import associateModels from './models/associations.js';
 import rssFeedRouter from './routes/rssFeedRoute.js';
 import userRoute from "./routes/usersRoute.js";
 import roleRoute from "./routes/rolesRoute.js";
@@ -14,6 +15,7 @@ import ProfilePhotosRouter from "./routes/profilePhotosRoute.js";
 import authRouter from "./routes/authRoute.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,6 +35,8 @@ app.use(cors(corsOptions));
 
 
 app.use('/uploads', express.static(join(__dirname, 'uploads')));
+
+associateModels();
 
 app.use("/users", userRoute);
 app.use("/roles", roleRoute);
