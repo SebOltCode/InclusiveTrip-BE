@@ -1,12 +1,13 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../db/index.js';
+import Review from './ReviewModel.js';
 
 const BarrierReview = sequelize.define('BarrierReview', {
     reviewId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Reviews', // Name of the target model
+            model: 'Reviews',
             key: 'id'
         }
     },
@@ -14,14 +15,17 @@ const BarrierReview = sequelize.define('BarrierReview', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Barriers', // Name of the target model
+            model: 'Barriers',
             key: 'id'
         }
     },
     reviews: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: true,
     }
 });
+
+
+
 
 export default BarrierReview;

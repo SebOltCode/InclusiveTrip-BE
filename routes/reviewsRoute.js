@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
-    getReviews, createReview,
+    getReviews,
+    createReview,
+    getReviewsByPlaceIdAndBarrierId,
     getReviewsByPlaceId,
     updateReview,
     deleteReview,
@@ -16,6 +18,7 @@ const reviewRouter = Router();
 
 
 reviewRouter.get("/", getReviews);
+reviewRouter.get("/filtered", getReviewsByPlaceIdAndBarrierId);
 reviewRouter.get("/count", getReviewsCount);
 reviewRouter.get("/user", verifyToken, getReviewsByUser);
 reviewRouter.get("/place/:placeId", getReviewsByPlaceId);
