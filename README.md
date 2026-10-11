@@ -27,7 +27,8 @@ Lassen Sie uns gemeinsam Städte zugänglicher und inklusiver gestalten – für
 - **Backend:** NodeJS, Express
 - **Datenbank:** PostgreSQL
 - **Versionierung:** Git, GitHub
-- **APIs:** Leaflet API
+- **Deployment:** Render
+- **APIs:** Leaflet, OpenStreetMap, Overpass API
 
 ## Features
 
@@ -69,8 +70,8 @@ Let’s work together to make cities more accessible and inclusive—for everyon
 - **Backend:** NodeJS, Express
 - **Database:** PostgreSQL
 - **Version Control:** Git, GitHub
-- **Deployment:** Docker, Heroku
-- **APIs:** Google Maps API
+- **Deployment:** Render
+- **APIs:** Leaflet, OpenStreetMap, Overpass API
 
 ## Features
 
@@ -83,81 +84,101 @@ Let’s work together to make cities more accessible and inclusive—for everyon
 
 We would like to thank our mentors and fellow students for their support and valuable advice that made this project possible.
 
+## Setup
+
+1. Copy `example-ENV-file` to `.env` and fill in `PG_URI`, `JWT_SECRET`, `FRONTEND_URL` and `BASE_URL` (public URL of this backend, used for upload links).
+2. `npm install` and `npm run dev`.
+3. On start the tables are created and – only if they are empty – seeded with roles (`1 admin`, `2 moderator`, `3 user`), barriers and place categories. Their IDs match the translation keys of the frontend.
+4. To get an admin, set `roleId` of a user to `1` in the database. Admins can manage users, roles, barriers and place categories.
+
+Authentication uses an `httpOnly` cookie named `token` (set by `/auth/signin`). Clients must send requests with credentials.
+
 ## API Endpoints
 
-The following endpoints are available:
-
-### Users
-
-- **POST /users** Create a new user.
-- **GET /users** Get all users.
-- **GET /users/count** Get the count of the users.
-- **GET /users/:id** Get a single user by id.
-- **PUT /users/:id** Update an existing user by id.
-- **DELETE /users/:id** Delete an user by id.
-
-### Reviews
-
-- **POST /reviews** Create a new review.
-- **GET /reviews** Get all reviews.
-- **GET /reviews/count** Get the count of reviews.
-- **GET /reviews/user** Get all reviews for the signed in user.
-- **GET /reviews/:placeId** Get a single review by placeId.
-- **PUT /reviews/:placeId** Update an existing review by placeId.
-- **DELETE /reviews/:placeId** Delete an review by placeId.
+Legend: 🌐 public · 🔑 signed in · 👤 signed in and owner (or the user themselves) · 🛡️ admin
 
 ### Auth
 
-- **POST /auth/register** Register a new user.
-- **POST /auth/signin** Authenticates the user.
-- **GET /auth/me** Get the logged-in user.
-- **DELETE /auth/signout** Logging out the logged in user.
+- 🌐 **POST /auth/register** Register a new user (`firstName`, `lastName`, `email`, `password` ≥ 8 chars).
+- 🌐 **POST /auth/signin** Sign in, sets the auth cookie.
+- 🔑 **GET /auth/me** Get the signed-in user.
+- 🌐 **DELETE /auth/signout** Sign out, clears the auth cookie.
 
-### PlaceCategories
+### Users
 
-- **POST /placeCategories** Create a new placeCategory.
-- **GET /placeCategories** Get all placeCategories.
-- **GET /placeCategories/selected** Get all selected placecategories.
-- **GET /placeCategories/:name** Get a single placeCategory by name.
-- **PUT /placeCategories/:id** Update an existing placeCategory by id.
-- **DELETE /placeCategories/:id** Delete an placeCategory by id.
+- 🛡️ **POST /users** Create a new user.
+- 🛡️ **GET /users** Get all users.
+- 🌐 **GET /users/count** Get the number of users (`{ count }`).
+- 👤 **GET /users/:id** Get a single user.
+- 👤 **PUT /users/:id** Update a user (partial). Only admins may change `roleId` and `blocked`.
+- 👤 **DELETE /users/:id** Delete a user including their reviews and photos.
 
-### Roles
+Passwords are always stored hashed and never returned.
 
-- **POST /roles** Create a new role.
-- **GET /roles** Get all roles.
-- **GET /roles/:id** Get a single role by id.
-- **PUT /roles/:id** Update an existing role by id.
-- **DELETE /roles/:id** Delete an role by id.
+### Reviews
 
-### Barriers
-
-- **POST /barriers** Create a new barrier.
-- **GET /barriers** Get all Barriers.
-- **GET /barriers/selected** Get all selected Barriers.
-- **GET /barriers/:name** Get a single barrier by name.
-- **PUT /barriers/:name** Update an existing barrier by name.
-- **DELETE /barriers/:name** Delete an barrier by name.
+- 🔑 **POST /reviews** Create a new review.
+- 🌐 **GET /reviews** Get all reviews.
+- 🌐 **GET /reviews/count** Get the number of reviews (`{ count }`).
+- 🔑 **GET /reviews/user** Get all reviews of the signed-in user.
+- 🌐 **GET /reviews/place/:placeId** Get all reviews of a place.
+- 🌐 **GET /reviews/place/:placeId/summary** Average rating per barrier and overall for a place.
+- 🌐 **GET /reviews/reviewid/:reviewId** Get a single review.
+- 🌐 **GET /reviews/filtered?placeId=&barrierId=** Get barrier ratings of a place for one barrier.
+- 👤 **PUT /reviews/:reviewId** Update a review.
+- 👤 **DELETE /reviews/:reviewId** Delete a review including barrier ratings and photos.
 
 ### BarriersReviews
 
-- **POST /barriersReviews** Create a new barriersReview.
-- **GET /barriersReviews** Get all barriersReviews.
-- **GET /barriersReviews/:id** Get a single barriersReview by id.
-- **PUT /barriersReviews/:id** Update an existing barriersReview by id.
-- **DELETE /barriersReviews/:id** Delete an barriersReview by id.
+- 👤 **POST /barriersReviews** Create a barrier rating (1–5) for an own review.
+- 🌐 **GET /barriersReviews** Get all barrier ratings.
+- 🌐 **GET /barriersReviews/:id** Get a single barrier rating.
+- 🌐 **GET /barriersReviews/review/:reviewId** Get all barrier ratings of a review.
+- 👤 **PUT /barriersReviews/:id** Update a barrier rating.
+- 👤 **DELETE /barriersReviews/:id** Delete a barrier rating.
+- 👤 **DELETE /barriersReviews/review/:reviewId** Delete all barrier ratings of a review.
 
 ### FileUploads
 
-- **POST /file-upload** Create a new FileUpload.
-- **GET /file-upload** Get all FileUploads.
-- **GET /file-upload/:filename** Get a single FileUpload by filename.
-- **PUT /file-upload/:filename** Update an existing FileUpload by filename.
-- **DELETE /file-upload/:filename** Delete an FileUpload by filename.
+- 👤 **POST /file-upload** Upload up to 5 JPEG/PNG images (max. 5 MB each, field `files`) for an own review (`reviewId`).
+- 🌐 **GET /file-upload** Get all files.
+- 🌐 **GET /file-upload/:filename** Get a single file.
+- 🛡️ **PUT /file-upload/:filename** Update file metadata.
+- 👤 **DELETE /file-upload/:filename** Delete a file of an own review.
 
 ### ProfilePhotos
 
-- **POST /profilePhotos** Create a new profilePhoto.
-- **GET /profilePhotos/:userid** Get a single profilePhoto by userid.
-- **PUT /profilePhotos/:userid** Update an existing profilePhoto by userid.
-- **DELETE /profilePhotos/:userid** Delete an profilePhoto by userid.
+- 👤 **POST /profilePhotos/:userid** Upload the own profile photo (field `file`, JPEG/PNG, max. 5 MB).
+- 🌐 **GET /profilePhotos/:userid** Get the profile photo URL of a user.
+- 👤 **PUT /profilePhotos/:userid** Set the own profile photo to an already uploaded photo URL.
+- 👤 **DELETE /profilePhotos/:userid** Delete the own profile photo.
+
+### PlaceCategories
+
+- 🛡️ **POST /placeCategories** Create a new place category (`tag`/`searchName` must be OSM identifiers).
+- 🌐 **GET /placeCategories** Get all place categories.
+- 🌐 **GET /placeCategories/selected** Get all selected place categories.
+- 🌐 **GET /placeCategories/:name** Get a single place category by name.
+- 🛡️ **PUT /placeCategories/:id** Update a place category.
+- 🛡️ **DELETE /placeCategories/:id** Delete a place category.
+
+### Roles
+
+- 🛡️ **POST /roles** Create a new role.
+- 🌐 **GET /roles** Get all roles.
+- 🌐 **GET /roles/:id** Get a single role.
+- 🛡️ **PUT /roles/:id** Update a role.
+- 🛡️ **DELETE /roles/:id** Delete a role.
+
+### Barriers
+
+- 🛡️ **POST /barriers** Create a new barrier.
+- 🌐 **GET /barriers** Get all barriers.
+- 🌐 **GET /barriers/selected** Get all selected barriers.
+- 🌐 **GET /barriers/:name** Get a single barrier by name.
+- 🛡️ **PUT /barriers/:name** Update a barrier.
+- 🛡️ **DELETE /barriers/:name** Delete a barrier.
+
+### RSS
+
+- 🌐 **GET /rss/rss-feed** Blog posts of barrierefrei-aufgerollt.at.

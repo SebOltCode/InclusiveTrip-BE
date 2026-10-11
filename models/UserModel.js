@@ -39,6 +39,23 @@ const User = sequelize.define("User", {
         allowNull: false,
         defaultValue: false,
     },
+}, {
+    // The password hash is never loaded unless explicitly requested via User.scope("withPassword")
+    defaultScope: {
+        attributes: { exclude: ["password"] },
+    },
+    scopes: {
+        withPassword: {
+            attributes: { include: ["password"] },
+        },
+    },
 });
+
+// Never serialize the password hash, even if it was loaded
+User.prototype.toJSON = function () {
+    const values = { ...this.get() };
+    delete values.password;
+    return values;
+};
 
 export default User;

@@ -2,7 +2,6 @@ import express from "express";
 import "./db/index.js";
 import cors from "cors";
 import "./models/index.js";
-import associateModels from './models/associations.js';
 import rssFeedRouter from './routes/rssFeedRoute.js';
 import userRoute from "./routes/usersRoute.js";
 import roleRoute from "./routes/rolesRoute.js";
@@ -13,12 +12,8 @@ import barrierRouter from "./routes/barriersRoute.js";
 import FileRouter from "./routes/fileUploadsRoute.js";
 import ProfilePhotosRouter from "./routes/profilePhotosRoute.js";
 import authRouter from "./routes/authRoute.js";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { UPLOADS_DIR } from "./controllers/file.js";
+import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,10 +28,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
-app.use('/uploads', express.static(join(__dirname, 'uploads')));
-
-associateModels();
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.use("/users", userRoute);
 app.use("/roles", roleRoute);
@@ -48,6 +40,9 @@ app.use("/file-upload", FileRouter);
 app.use("/profilePhotos", ProfilePhotosRouter);
 app.use("/auth", authRouter);
 app.use('/rss', rssFeedRouter);
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

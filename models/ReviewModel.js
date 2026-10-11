@@ -1,6 +1,5 @@
 import sequelize from "../db/index.js";
 import { DataTypes } from "sequelize";
-import BarrierReview from "./BarrierReviewsModel.js";
 
 const Review = sequelize.define("Review", {
     placeName: {
@@ -16,8 +15,5 @@ const Review = sequelize.define("Review", {
         allowNull: false,
     },
 });
-
-
-
 
 export default Review;

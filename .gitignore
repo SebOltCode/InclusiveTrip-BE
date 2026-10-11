@@ -1,2 +1,6 @@
 .env*
+!example-ENV-file
 /node_modules
+
+# User uploads are runtime data and must not be committed
+/uploads/*

@@ -1,4 +1,5 @@
 import sequelize from "../db/index.js";
+import seed from "../db/seed.js";
 import Review from "./ReviewModel.js";
 import BarrierReview from "./BarrierReviewsModel.js";
 import PlaceCategory from "./PlaceCategoryModel.js";
@@ -28,3 +29,4 @@ BarrierReview.belongsTo(Review, { foreignKey: 'reviewId' });
 
 await sequelize.sync();
 console.log("All models were synchronized successfully.");
+await seed();

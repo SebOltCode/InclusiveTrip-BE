@@ -1,87 +1,51 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import User from '../models/UserModel.js';
+import { HttpError } from '../utils/httpError.js';
 
+const getCookieOptions = () => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    return {
+        httpOnly: true,
+        sameSite: isProduction ? 'None' : 'Lax',
+        secure: isProduction,
+        path: '/',
+    };
+};
 
 export const register = async (req, res) => {
-    try {
-        const { firstName, lastName, email, password, roleId } = req.body;
-        if (!firstName || !lastName || !email || !password) {
-            return res.status(400).json({ message: 'Please provide firstName, lastName,email and password in the body' });
-        }
-        const alreadyExists = await User.findOne({ where: { email } });
-        if (alreadyExists) {
-            return res.status(400).json({ message: "User already exists" });
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ firstName, lastName, email, password: hashedPassword, roleId });
-        await newUser.save();
+    // roleId, blocked etc. are intentionally ignored: new users always get the default role
+    const { firstName, lastName, email, password } = req.body;
+    const alreadyExists = await User.findOne({ where: { email } });
+    if (alreadyExists) throw new HttpError(409, "User already exists");
 
-        res.status(201).json({ success: 'welcome on board' });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-}
-
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await User.create({ firstName, lastName, email, password: hashedPassword });
+    res.status(201).json({ success: 'welcome on board' });
+};
 
 export const signin = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+    const { email, password } = req.body;
 
-        const existingUser = await User.findOne({ where: { email } });
-        if (!existingUser) {
-            return res.status(400).json({ message: "User doesn't exist" });
-        }
-        const isMatch = await bcrypt.compare(password, existingUser.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Incorrect password" });
-        }
-        const token = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET, {
-            expiresIn: '7d'
-        });
+    const existingUser = await User.scope('withPassword').findOne({ where: { email } });
+    // Same message for unknown email and wrong password, so accounts can't be enumerated
+    const isMatch = existingUser && await bcrypt.compare(password, existingUser.password);
+    if (!isMatch) throw new HttpError(401, "Invalid email or password");
+    if (existingUser.blocked) throw new HttpError(403, "This account is blocked");
 
-        const isProduction = process.env.NODE_ENV === 'production';
-        const cookieOptions = {
-            httpOnly: false,
-            sameSite: isProduction ? 'None' : 'Lax',
-            secure: isProduction,
-            path: '/',
-        };
+    const token = jwt.sign({ id: existingUser.id }, process.env.JWT_SECRET, {
+        expiresIn: '7d'
+    });
 
-        res.cookie('token', token, cookieOptions);
-        return res.status(200).json({ success: 'Welcome back' });
-
-    } catch (error) {
-        console.error('Signin error:', error);
-        res.status(500).json({ message: 'An error occurred while signing in.' });
-    }
+    res.cookie('token', token, { ...getCookieOptions(), maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.status(200).json(existingUser);
 };
 
 export const signout = async (req, res) => {
-    try {
-        const isProduction = process.env.NODE_ENV === 'production';
-        const cookieOptions = {
-            httpOnly: false,
-            sameSite: isProduction ? 'None' : 'Lax',
-            secure: isProduction,
-            path: '/',
-        };
-        res.clearCookie('token', cookieOptions);
-        res.status(200).json({ success: 'goodbye' });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
+    res.clearCookie('token', getCookieOptions());
+    res.status(200).json({ success: 'goodbye' });
 };
 
 export const me = async (req, res) => {
-    try {
-        const myUser = await User.findOne({ where: { id: req.userId } });
-        if (!myUser) {
-            return res.status(400).json({ message: "please login" });
-        }
-        res.status(200).json(myUser);
-    }
-    catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-}
+    res.status(200).json(req.user);
+};

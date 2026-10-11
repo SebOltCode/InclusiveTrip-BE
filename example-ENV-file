@@ -1,3 +1,5 @@
-PG_URI=your SQL database connection-sring
-JWT_SECRET=  a random string
-FRONTEND_URL = FRONTEND_URL
+PG_URI=your SQL database connection-string
+JWT_SECRET=a long random string
+FRONTEND_URL=URL of the frontend (for CORS)
+BASE_URL=public URL of this backend (used for upload links)
+NODE_ENV=production on the server (secure cross-site cookie)

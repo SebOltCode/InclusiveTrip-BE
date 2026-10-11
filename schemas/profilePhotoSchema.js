@@ -1,9 +1,9 @@
 import Joi from "joi";
 
 const profilePhotoSchema = Joi.object({
-  profilePhoto: Joi.any().meta({ swaggerType: "file" }).required().messages({
+  profilePhoto: Joi.string().uri().required().messages({
     "any.required": "Profile photo is required",
-    "any.only": "Invalid file type. Please upload a valid file",
+    "string.uri": "Profile photo must be a URL",
   }),
 });
 
